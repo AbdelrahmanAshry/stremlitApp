@@ -25,7 +25,7 @@ uploaded_file = st.file_uploader("Upload a model file (.pth)", type=["pth"])
 if uploaded_file is None:
     timer = Timer(60.0, terminate_session)
  #   timer.start()
-if uploaded_model_file is not None:
+if uploaded_file is not None:
     # Stop the timer as the file is uploaded
     timer.cancel()
 
