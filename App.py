@@ -19,16 +19,14 @@ def terminate_session():
 
 # File uploader for .pth files
 uploaded_file = st.file_uploader("Upload a model file (.pth)", type=["pth"])
-
+"""
+timer = Timer(60.0, terminate_session)
 
 # Start a timer to terminate the session if no file is uploaded within 40 seconds
 if uploaded_file is None:
-    timer = Timer(60.0, terminate_session)
- #   timer.start()
+ #   timer.start() """
 if uploaded_file is not None:
-    # Stop the timer as the file is uploaded
-    timer.cancel()
-
+    
     # Load the model
     try:
         model = torch.load(uploaded_model_file)
