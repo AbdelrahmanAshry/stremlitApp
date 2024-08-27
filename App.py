@@ -42,29 +42,29 @@ uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"
 # Initialize model variable
 model = None
 
-if uploaded_model_file is not None:
-    try:
-        # Try loading the model as a full model
-        try:
+#if uploaded_model_file is not None:
+#    try:
+#        # Try loading the model as a full model
+#        try:
             model = torch.load(uploaded_model_file, map_location=torch.device('cpu'))
             if isinstance(model, torch.nn.Module):
                 model.eval()
                 st.write("Model loaded successfully!")
             else:
                 raise ValueError("Loaded file is not a valid model.")
-        except Exception as e:
-            st.write("Failed to load model as a full model. Trying to load as a state dictionary...")
-            try:
-                model = MyModel()  # Define the model architecture
-                model.load_state_dict(torch.load(uploaded_model_file, map_location=torch.device('cpu')))
-                model.eval()
-                st.write("Model loaded successfully from state dictionary!")
-            except Exception as e:
-                st.error(f"An error occurred while loading the model: {e}")
-                st.stop()
-    except Exception as e:
-        st.error(f"An error occurred while loading the model: {e}")
-        st.stop()
+#        except Exception as e:
+#            st.write("Failed to load model as a full model. Trying to load as a state dictionary...")
+#            try:
+#                model = MyModel()  # Define the model architecture
+#                model.load_state_dict(torch.load(uploaded_model_file, map_location=torch.device('cpu')))
+#                model.eval()
+#                st.write("Model loaded successfully from state dictionary!")
+#            except Exception as e:
+#                st.error(f"An error occurred while loading the model: {e}")
+#                st.stop()
+#    except Exception as e:
+#        st.error(f"An error occurred while loading the model: {e}")
+#        st.stop()
 
 # Data transformations
 data_transforms = {
