@@ -94,9 +94,9 @@ if uploaded_img is not None:
         image = data_transforms['val'](image).unsqueeze(0)
 
         # Move model and input to the device
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model = model.to(device)
-        image = image.to(device)
+        # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        #model = model.to(device)
+        #image = image.to(device)
 
         # Make prediction
         with torch.no_grad():
