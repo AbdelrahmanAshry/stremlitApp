@@ -6,10 +6,11 @@ Importing Libraries
 
 import streamlit as st
 import torch
+import torch.nn as nn
+import torchvision.models as models
 from torchvision import transforms
 from PIL import Image
 from threading import Timer
-import torch.nn as nn
 
 """#Deploy App streamlit"""
 
