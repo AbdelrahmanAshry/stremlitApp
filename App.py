@@ -9,6 +9,7 @@ import torch
 from torchvision import transforms
 from PIL import Image
 from threading import Timer
+import torch.nn as nn
 
 """#Deploy App streamlit"""
 
