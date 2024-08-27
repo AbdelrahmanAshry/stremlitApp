@@ -18,7 +18,7 @@ from threading import Timer
 class MyModel(torch.nn.Module):
     def __init__(self):
         super(MyModel, self).__init__()
-        self.model = models.resnet18(pretrained=False)  # Replace with your model architecture
+        self.model = models.resnet18(pretrained=True)  # Replace with your model architecture
 
     def forward(self, x):
         return self.model(x)
