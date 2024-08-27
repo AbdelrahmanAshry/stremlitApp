@@ -12,41 +12,65 @@ from threading import Timer
 
 """#Deploy App streamlit"""
 
+# Define the model architecture (replace with your actual architecture)
+class MyModel(torch.nn.Module):
+    def __init__(self):
+        super(MyModel, self).__init__()
+        self.model = models.resnet18(pretrained=False)  # Replace with your model architecture
+
+    def forward(self, x):
+        return self.model(x)
+
 # Function to terminate the Streamlit session
 def terminate_session():
     st.write("Session terminated due to no file upload.")
     st.stop()
 
+# Streamlit app
+st.title("Image Classification")
+
 # File uploader for .pth files
 uploaded_model_file = st.file_uploader("Upload a model file (.pth)", type=["pth"])
 
+# File uploader for image files
+uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+
+# Initialize model variable
+model = None
+
 if uploaded_model_file is not None:
-    # Load the model
+    # Try to load the model as a full model
     try:
         model = torch.load(uploaded_model_file, map_location=torch.device('cpu'))
-        model.eval()
-        st.write("Model loaded successfully!")
+        if isinstance(model, torch.nn.Module):
+            model.eval()
+            st.write("Model loaded successfully!")
+        else:
+            raise ValueError("Loaded file is not a valid model.")
     except Exception as e:
-        st.error(f"An error occurred while loading the model: {e}")
-        st.stop()  # Stop the app if there is any error
+        # If loading as a full model fails, try loading as a state dictionary
+        st.write("Failed to load model as a full model. Trying to load as a state dictionary...")
+        try:
+            model = MyModel()  # Define the model architecture
+            model.load_state_dict(torch.load(uploaded_model_file, map_location=torch.device('cpu')))
+            model.eval()
+            st.write("Model loaded successfully from state dictionary!")
+        except Exception as e:
+            st.error(f"An error occurred while loading the model: {e}")
+            st.stop()  # Stop the app if there is any error
 
-    # Data transformations
-    data_transforms = {
-        'val': transforms.Compose([
-            transforms.Resize((256, 256)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        ]),
-    }
+# Data transformations
+data_transforms = {
+    'val': transforms.Compose([
+        transforms.Resize((256, 256)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ]),
+}
 
-    # Streamlit app
-    st.title("Image Classification")
-    uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
-
-    # Progress bar
-    progress_bar = st.progress(0)
-
-    if uploaded_img is not None:
+# Handle image upload and classification
+if uploaded_img is not None:
+    if model is not None:
         # Load the image
         image = Image.open(uploaded_img)
         st.image(image, caption='Uploaded Image', use_column_width=True)
@@ -70,5 +94,8 @@ if uploaded_model_file is not None:
         st.write(f'Prediction: {class_names[predicted.item()]}')
 
         # Update the progress bar to complete
-        progress_bar.progress(100)
         st.write("Classification completed.")
+    else:
+        st.warning("Please upload a model file first.")
+else:
+    st.warning("Please upload an image to classify.")
