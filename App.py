@@ -49,8 +49,8 @@ if uploaded_model_file is not None:
 #            model = torch.load(uploaded_model_file, map_location=torch.device('cpu')
              model = torch.load(uploaded_model_file)
 #            if isinstance(model, torch.nn.Module):
-#                model.eval()
-                st.write("Model loaded successfully!")
+             model.eval()
+             st.write("Model loaded successfully!")
 #            else:
 #                raise ValueError("Loaded file is not a valid model.")
 #        except Exception as e:
