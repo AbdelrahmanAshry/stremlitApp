@@ -53,7 +53,7 @@ uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"
 # Progress bar
 progress_bar = st.progress(0)
 
-if uploaded_img is not None:
+    if uploaded_img is not None:
     # Load the image
     image = Image.open(uploaded_img)
     st.image(image, caption='Uploaded Image', use_column_width=True)
