@@ -57,7 +57,7 @@ if uploaded_model_file is not None:
                 model = MyModel()  # Define your model architecture first
                 model.load_state_dict(loaded_object)
                 model.eval()  # Now you can use eval()
-            else 
+            else: 
                 raise ValueError("Loaded file is not a valid model.")
 #        except Exception as e:
 #            st.write("Failed to load model as a full model. Trying to load as a state dictionary...")
