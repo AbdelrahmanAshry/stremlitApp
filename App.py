@@ -46,8 +46,8 @@ if uploaded_model_file is not None:
     try:
 #        # Try loading the model as a full model
 #        try:
-#            model = torch.load(uploaded_model_file, map_location=torch.device('cpu')
-             model = torch.load(uploaded_model_file)
+             model = torch.load(uploaded_model_file, map_location=torch.device('cpu')
+#             model = torch.load(uploaded_model_file)
 #            if isinstance(model, torch.nn.Module):
              model.eval()
              st.write("Model loaded successfully!")
