@@ -39,19 +39,19 @@ if uploaded_model_file is not None:
         
 
 # Data transformations
-data_transforms = {
+    data_transforms = {
     'val': transforms.Compose([
         transforms.Resize((256, 256)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ]),
-}
+    }
 #torch.load with map_location=torch.device('cpu')         
 # Streamlit app
-st.title("Image Classification")
-uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+    st.title("Image Classification")
+    uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 # Progress bar
-progress_bar = st.progress(0)
+    progress_bar = st.progress(0)
 
     if uploaded_img is not None:
     # Load the image
