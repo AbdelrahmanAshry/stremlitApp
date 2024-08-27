@@ -51,11 +51,11 @@ if uploaded_model_file is not None:
             if isinstance(model, torch.nn.Module):
                 model.eval()#full model
                 st.write("Model loaded successfully!")
-            elif isinstance(loaded_object, dict):
+            elif isinstance(model, dict):
                 print("This is a state dictionary.")
  # You'll need to load this into a model architecture
                 model = MyModel()  # Define your model architecture first
-                model.load_state_dict(loaded_object)
+                model.load_state_dict(model)
                 model.eval()  # Now you can use eval()
             else: 
                 raise ValueError("Loaded file is not a valid model.")
