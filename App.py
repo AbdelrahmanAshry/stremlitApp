@@ -9,7 +9,7 @@ import torch
 from torchvision import transforms
 from PIL import Image
 from threading import Timer
-import io
+#import io
 """#Deploy App streamlit"""
 
 # Function to terminate the Streamlit session
