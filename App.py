@@ -53,7 +53,7 @@ if uploaded_model_file is not None:
 # Progress bar
     progress_bar = st.progress(0)
 
-    if uploaded_img is not None:
+if uploaded_img is not None:
     # Load the image
     image = Image.open(uploaded_img)
     st.image(image, caption='Uploaded Image', use_column_width=True)
