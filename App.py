@@ -9,6 +9,7 @@ import torch
 from torchvision import transforms
 from PIL import Image
 from threading import Timer
+
 #import io
 """#Deploy App streamlit"""
 
@@ -45,7 +46,7 @@ data_transforms = {
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ]),
 }
-        
+torch.load with map_location=torch.device('cpu')         
 # Streamlit app
 st.title("Image Classification")
 uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
