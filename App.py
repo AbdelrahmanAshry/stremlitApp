@@ -18,14 +18,14 @@ def terminate_session():
     st.stop()
 
 # File uploader for .pth files
-uploaded_file = st.file_uploader("Upload a model file (.pth)", type=["pth"])
+uploaded_model_file = st.file_uploader("Upload a model file (.pth)", type=["pth"])
 """
 timer = Timer(60.0, terminate_session)
 
 # Start a timer to terminate the session if no file is uploaded within 40 seconds
-if uploaded_file is None:
+if uploaded_model_file is None:
  #   timer.start() """
-if uploaded_file is not None:
+if uploaded_model_file is not None:
     
     # Load the model
     try:
