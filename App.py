@@ -13,6 +13,8 @@ from PIL import Image
 from threading import Timer
 
 """#Deploy App streamlit"""
+# Streamlit app
+st.title("Image Classification")
 
 # Define the model architecture (replace with your actual architecture)
 class MyModel(torch.nn.Module):
