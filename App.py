@@ -42,7 +42,7 @@ uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"
 # Initialize model variable
 model = None
 
-if uploaded_model_file is not None:
+#if uploaded_model_file is not None:
 #    try:
 #        # Try loading the model as a full model
         try:
