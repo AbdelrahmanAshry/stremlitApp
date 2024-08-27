@@ -50,13 +50,13 @@ data_transforms = {
         
 # Streamlit app
 st.title("Image Classification")
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 # Progress bar
 progress_bar = st.progress(0)
 
-if uploaded_image_file is not None:
+if uploaded_img is not None:
     # Load the image
-    image = Image.open(uploaded_image_file)
+    image = Image.open(uploaded_img)
     st.image(image, caption='Uploaded Image', use_column_width=True)
     st.write("Classifying...")
 
