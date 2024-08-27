@@ -46,18 +46,19 @@ if uploaded_model_file is not None:
     try:
 #        # Try loading the model as a full model
 #        try:
-             model = torch.load(uploaded_model_file, map_location=torch.device('cpu'))
+            model = torch.load(uploaded_model_file, map_location=torch.device('cpu'))
 #             model = torch.load(uploaded_model_file)
             if isinstance(model, torch.nn.Module):
-              model.eval()#full model
-              st.write("Model loaded successfully!")
+                model.eval()#full model
+                st.write("Model loaded successfully!")
             elif isinstance(loaded_object, dict):
-              print("This is a state dictionary.")
+                print("This is a state dictionary.")
  # You'll need to load this into a model architecture
-              model = MyModel()  # Define your model architecture first
-              model.load_state_dict(loaded_object)
-              model.eval()  # Now you can use eval()
-#                raise ValueError("Loaded file is not a valid model.")
+                model = MyModel()  # Define your model architecture first
+                model.load_state_dict(loaded_object)
+                model.eval()  # Now you can use eval()
+            else 
+                raise ValueError("Loaded file is not a valid model.")
 #        except Exception as e:
 #            st.write("Failed to load model as a full model. Trying to load as a state dictionary...")
 #            try:
