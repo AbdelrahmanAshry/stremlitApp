@@ -275,39 +275,77 @@ test_accuracy = 100. * correct / total
 print(f'Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy:.2f}%')
 
 """#Deploy App streamlit"""
+st.title("Image Classification")
 
-#pip install streamlit
-import streamlit as st
-from PIL import Image
-# Save the model
-torch.save(model.state_dict(), 'model.pth')
-
-# Load the model for inference
-model.load_state_dict(torch.load('model.pth'))
-model.eval()
-
+# Function to terminate the Streamlit session
+def terminate_session():
+    st.write("Session terminated due to no file upload.")
+    st.stop()
 
 # Streamlit app
 st.title("Image Classification")
-uploaded_file = st.file_uploader("Choose an image...", type="jpg")
-# Progress bar
-progress_bar = st.progress(0)
 
-if uploaded_file is not None:
-    # Load the image
-    image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Image', use_column_width=True)
-    st.write("")
-    st.write("Classifying...")
+# File uploader for .pth files
+#uploaded_model_file = st.file_uploader("Upload a model file (.pth)", type=["pth"])
 
-    # Preprocess the image
-    image = data_transforms['val'](image).unsqueeze(0).to(device)  # Add batch dimension
+# File uploader for image files
+uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+uploaded_model_file=model
+# Initialize model variable
 
-    # Make prediction
-    with torch.no_grad():
-        output = model(image)
-        _, predicted = torch.max(output, 1)
+if uploaded_model_file is not None:
+    try:
+        # Try loading the model as a full model
+        try:
+            model = torch.load(uploaded_model_file, map_location=torch.device('cpu'))
+            if isinstance(model, torch.nn.Module):
+                model.eval()
+                st.write("Model loaded successfully!")
+            else:
+                raise ValueError("Loaded file is not a valid model.")
+        except Exception as e:
+            st.write("Failed to load model as a full model. Trying to load as a state dictionary...")
+            try:
+                model = MyModel()  # Define the model architecture
+                model.load_state_dict(torch.load(uploaded_model_file, map_location=torch.device('cpu')))
+                model.eval()
+                st.write("Model loaded successfully from state dictionary!")
+            except Exception as e:
+                st.error(f"An error occurred while loading the model: {e}")
+                st.stop()
+    except Exception as e:
+        st.error(f"An error occurred while loading the model: {e}")
+        st.stop()
 
-    # Map the output to class names (you need to define these according to your dataset)
-    class_names = ['CaS', 'CoS 2', 'Gum', 'MC', 'OC', 'OLP', 'OT']
-    st.write(f'Prediction: {class_names[predicted.item()]}')
+
+# Handle image upload and classification
+if uploaded_img is not None:
+    if model is not None:
+        # Load the image
+        image = Image.open(uploaded_img)
+        st.image(image, caption='Uploaded Image', use_column_width=True)
+        st.write("Classifying...")
+
+        # Preprocess the image
+        image = data_transforms['val'](image).unsqueeze(0)
+
+        # Move model and input to the device
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model = model.to(device)
+        image = image.to(device)
+
+        # Make prediction
+        with torch.no_grad():
+            output = model(image)
+            _, predicted = torch.max(output, 1)
+
+        # Map the output to class names
+        class_names = ['CaS', 'CoS', 'Gum', 'MC', 'OC', 'OLP', 'OT']
+        st.write(f'Prediction: {class_names[predicted.item()]}')
+
+        # Update the progress bar to complete
+        st.write("Classification completed.")
+    else:
+        st.warning("Please wait while model training ....")
+else:
+    st.warning("Please upload an image to classify.")
