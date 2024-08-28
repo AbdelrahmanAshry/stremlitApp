@@ -6,6 +6,8 @@ from torchvision import datasets, transforms
 from PIL import Image
 import random
 import os
+import tempfile
+
 
 # Create a temporary directory to store the uploaded dataset
 with tempfile.TemporaryDirectory() as tmp_dir:
