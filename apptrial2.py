@@ -181,20 +181,20 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         print('Finished Training')
 """
         # User choice: Random image or Upload
-       option = st.radio("Select an option", ('Random image from training dataset', 'Upload an image'))
+         option = st.radio("Select an option", ('Random image from training dataset', 'Upload an image'))
 
         # Initialize variable to store the image
-       image = None
+         image = None
 
         # Option 1: Random Image from Dataset
-       if option == 'Random image from Test dataset':
+         if option == 'Random image from Test dataset':
             # Pick a random image
             random_index = random.randint(0, len(test_loader) - 1)
             image, label = test_loader.dataset[random_index]
             st.image(transforms.ToPILImage()(image), caption=f'Random Image from Class: {test_loader.dataset.classes[label]}', use_column_width=True)
 
         # Option 2: Upload an Image
-       elif option == 'Upload an image':
+         elif option == 'Upload an image':
             uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
             if uploaded_img is not None:
                 image = Image.open(uploaded_img)
@@ -202,7 +202,7 @@ with tempfile.TemporaryDirectory() as tmp_dir:
                 image = data_transforms['val'](image)
 
         # If an image is available, make a prediction
-       if image is not None:
+         if image is not None:
             model = model.to(device)
             image = image.unsqueeze(0).to(device)
 
@@ -213,6 +213,6 @@ with tempfile.TemporaryDirectory() as tmp_dir:
             class_names = ['Cas', 'Cos', 'Gum', 'MC', 'OC', 'OLP', 'OT']
             st.write(f'Prediction: {class_names[predicted.item()]}')
             st.write("Classification completed.")
-       else:
+         else:
             st.warning("Please choose or upload an image to classify.")
 
