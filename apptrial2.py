@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader, TensorDataset, Subset
 from torchvision import datasets, transforms
 from PIL import Image
 from sklearn.model_selection import train_test_split
-from torchvision.models import  ResNet50_Weights
+from torchvision.models import  DenseNet121_Weights,VGG16_Weights,ResNet18_Weights
 import zipfile
 import random
 import os
@@ -97,15 +97,17 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         # Model Selection
         model_option = st.selectbox("Choose a pre-trained model", ["ResNet18", "VGG16", "DenseNet"])
         st.write(f"You selected {model_option}")
-        weights = ResNet50_Weights.DEFAULT
 
         # Load the selected model
         def load_model(model_name):
             if model_name == "ResNet18":
+                weights = ResNet18_Weights.DEFAULT
                 return models.resnet18(weights=weights)
             elif model_name == "VGG16":
+                weights=VGG16_Weights.DEFAULT 
                 return models.vgg16(weights=weights)
             elif model_name == "DenseNet":
+                weights = DenseNet121_Weights.DEFAULT
                 return models.densenet121(weights=weights)
             else:
                 raise ValueError("Unknown model selected!")
