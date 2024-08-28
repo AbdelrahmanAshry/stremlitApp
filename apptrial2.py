@@ -129,8 +129,8 @@ with tempfile.TemporaryDirectory() as tmp_dir:
             random_index = random.randint(0, len(test_loader) - 1)
             image, label = test_loader.dataset.dataset[test_loader.dataset.indices[random_index]]
             # Convert the tensor image to a PIL image
-            image = transforms.ToPILImage()(image)
-            st.image(image, caption=f'Random Image from Class: {class_names[label]}', use_column_width=True)
+            Img = transforms.ToPILImage()(image)
+            st.image(Img, caption=f'Random Image from Class: {class_names[label]}', use_column_width=True)
 
         # Option 2: Upload an Image
         elif option == 'Upload an image':
