@@ -3,4 +3,5 @@ pandas
 numpy
 torch
 torchvision
-sklearn
+scikit-learn
+Pillow
