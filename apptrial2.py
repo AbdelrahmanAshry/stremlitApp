@@ -4,27 +4,18 @@ import torchvision.models as models
 from torch.utils.data import DataLoader, TensorDataset
 from torchvision import datasets, transforms
 from PIL import Image
+from sklearn.model_selection import train_test_split
+import zipfile
 import random
 import os
 import tempfile
+
 st.title("Image Classification")
 # Create a temporary directory to store the uploaded dataset
 with tempfile.TemporaryDirectory() as tmp_dir:
     # Allow the user to upload a ZIP file containing the dataset
     uploaded_file = st.file_uploader("Upload a ZIP file containing the dataset", type=["zip"])
-
-    if uploaded_file is not None:
-        # Extract the ZIP file into the temporary directory
-        import zipfile
-        with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
-            zip_ref.extractall(tmp_dir)
-            extracted = zip_ref.namelist()
-
-        # Assuming the ZIP file contains Training, Validation, Testing directories
-        dataset_path = os.path.join(tmp_dir, extracted[2088])
-        
-        
-        # Data preprocess
+    # Data preprocess
         data_transforms = {
             'train': transforms.Compose([
                 transforms.Resize((256, 256)),
@@ -41,6 +32,65 @@ with tempfile.TemporaryDirectory() as tmp_dir:
             ]),
         }
 
+    
+    if uploaded_file is not None:
+        # Extract the ZIP file into the temporary directory
+        with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
+            zip_ref.extractall(tmp_dir)
+        
+        # Identify the root directory containing the images
+        def find_root_dir(directory):
+            # Traverse the directory to find the actual root of the dataset
+            for root, dirs, files in os.walk(directory):
+                if len(dirs) == 7 and all(os.path.isdir(os.path.join(root, d)) for d in dirs):
+                    return root
+            return directory
+
+        # Locate the main dataset directory
+        main_dir = find_root_dir(tmp_dir)
+        
+        # Check if Training, Validation, Testing directories exist
+        train_dir = os.path.join(main_dir, "Training")
+        val_dir = os.path.join(main_dir, "Validation")
+        test_dir = os.path.join(main_dir, "Testing")
+
+        if not os.path.exists(train_dir) or not os.path.exists(val_dir) or not os.path.exists(test_dir):
+            # If directories aren't found, assume the dataset needs splitting
+            full_dataset = datasets.ImageFolder(main_dir)
+            
+            # Split dataset into train, val, and test
+            train_indices, temp_indices = train_test_split(
+                list(range(len(full_dataset))), test_size=0.4, stratify=full_dataset.targets)
+            val_indices, test_indices = train_test_split(
+                temp_indices, test_size=0.5, stratify=[full_dataset.targets[i] for i in temp_indices])
+            
+            # Creating subsets
+            train_dataset = Subset(full_dataset, train_indices)
+            val_dataset = Subset(full_dataset, val_indices)
+            test_dataset = Subset(full_dataset, test_indices)
+
+            st.success("Dataset split into train, validation, and test sets successfully!")
+       
+        else:            
+            # Load the datasets using ImageFolder
+            train_dataset = datasets.ImageFolder(train_dir, transform=data_transforms['train'])
+            val_dataset = datasets.ImageFolder(val_dir, transform=data_transforms['val'])
+            test_dataset = datasets.ImageFolder(test_dir, transform=data_transforms['val'])
+            
+            st.success("Datasets loaded successfully!")
+
+        # Create data loaders
+        batch_size = 32
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+        test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+
+        # Display class names
+        class_names = train_dataset.dataset.classes if isinstance(train_dataset, Subset) else train_dataset.classes
+        st.write(f"Class names: {class_names}")
+        
+        
+        
         # Load the datasets using ImageFolder
         train_dataset = datasets.ImageFolder(root=dataset_path+'/Training', transform=data_transforms['train'])
         val_dataset = datasets.ImageFolder(root=extracted[3088], transform=data_transforms['val'])
