@@ -20,9 +20,9 @@ with tempfile.TemporaryDirectory() as tmp_dir:
             zip_ref.extractall(tmp_dir)
         
         # Assuming the ZIP file contains Training, Validation, Testing directories
-        #train_dir = os.path.join(tmp_dir, "Training")
-        #val_dir = os.path.join(tmp_dir, "Validation")
-        #test_dir = os.path.join(tmp_dir, "Testing")
+        train_dir = os.path.join(tmp_dir, "Training")
+        val_dir = os.path.join(tmp_dir, "Validation")
+        test_dir = os.path.join(tmp_dir, "Testing")
 
         # Data preprocess
         data_transforms = {
@@ -42,9 +42,9 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         }
 
         # Load the datasets using ImageFolder
-        train_dataset = datasets.ImageFolder(root=tmp_dir + '/Training', transform=data_transforms['train'])
-        val_dataset = datasets.ImageFolder(root=tmp_dir + '/Validation', transform=data_transforms['val'])
-        test_dataset = datasets.ImageFolder(root=tmp_dir + '/Testing', transform=data_transforms['val'])
+        train_dataset = datasets.ImageFolder(root=train_dir, transform=data_transforms['train'])
+        val_dataset = datasets.ImageFolder(root=val_dir, transform=data_transforms['val'])
+        test_dataset = datasets.ImageFolder(root=test_dir, transform=data_transforms['val'])
 
         # Create data loaders
         batch_size = 32
