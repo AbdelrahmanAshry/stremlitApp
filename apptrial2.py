@@ -130,7 +130,7 @@ with tempfile.TemporaryDirectory() as tmp_dir:
             image, label = test_loader.dataset.dataset[test_loader.dataset.indices[random_index]]
             # Convert the tensor image to a PIL image
             image = transforms.ToPILImage()(image)
-            st.image(image, caption=f'Random Image from Class: {test_loader.dataset.classes[label]}', use_column_width=True)
+            st.image(image, caption=f'Random Image from Class: {class_names[label]}', use_column_width=True)
 
         # Option 2: Upload an Image
         elif option == 'Upload an image':
