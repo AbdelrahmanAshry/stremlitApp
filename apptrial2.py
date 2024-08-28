@@ -7,7 +7,7 @@ from PIL import Image
 import random
 import os
 import tempfile
-
+st.title("Image Classification")
 # Create a temporary directory to store the uploaded dataset
 with tempfile.TemporaryDirectory() as tmp_dir:
     # Allow the user to upload a ZIP file containing the dataset
@@ -20,9 +20,9 @@ with tempfile.TemporaryDirectory() as tmp_dir:
             zip_ref.extractall(tmp_dir)
         
         # Assuming the ZIP file contains Training, Validation, Testing directories
-        train_dir = os.path.join(tmp_dir, "Training")
-        val_dir = os.path.join(tmp_dir, "Validation")
-        test_dir = os.path.join(tmp_dir, "Testing")
+        #train_dir = os.path.join(tmp_dir, "Training")
+        #val_dir = os.path.join(tmp_dir, "Validation")
+        #test_dir = os.path.join(tmp_dir, "Testing")
 
         # Data preprocess
         data_transforms = {
@@ -42,9 +42,9 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         }
 
         # Load the datasets using ImageFolder
-        train_dataset = datasets.ImageFolder(train_dir, transform=data_transforms['train'])
-        val_dataset = datasets.ImageFolder(val_dir, transform=data_transforms['val'])
-        test_dataset = datasets.ImageFolder(test_dir, transform=data_transforms['val'])
+        train_dataset = datasets.ImageFolder(root=dataset_path + '/Training', transform=data_transforms['train'])
+        val_dataset = datasets.ImageFolder(root=dataset_path + '/Validation', transform=data_transforms['val'])
+        test_dataset = datasets.ImageFolder(root=dataset_path + '/Testing', transform=data_transforms['val'])
 
         # Create data loaders
         batch_size = 32
