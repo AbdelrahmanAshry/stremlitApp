@@ -1,7 +1,7 @@
 import streamlit as st
 import torch
 import torchvision.models as models
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader, TensorDataset, Subset
 from torchvision import datasets, transforms
 from PIL import Image
 from sklearn.model_selection import train_test_split
