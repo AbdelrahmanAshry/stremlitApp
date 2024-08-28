@@ -125,7 +125,7 @@ with tempfile.TemporaryDirectory() as tmp_dir:
 
         model = torch.compile(model, mode="reduce-overhead")
         best_val_loss = float("inf")
-""
+"""
         for epoch in range(num_epochs):
             # Training phase
             model.train()
@@ -179,7 +179,7 @@ with tempfile.TemporaryDirectory() as tmp_dir:
                 print(f'Model saved with validation loss: {val_loss:.4f}')
         
         print('Finished Training')
-""
+"""
         # User choice: Random image or Upload
         option = st.radio("Select an option", ('Random image from training dataset', 'Upload an image'))
 
