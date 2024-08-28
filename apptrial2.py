@@ -116,69 +116,8 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         num_classes = 7
         num_epochs = 10
         model.fc = torch.nn.Linear(model.fc.in_features, num_classes)  # Modify the final layer for the classes
-        st.write(f"{model_option} model loaded successfully!")"""
-        # Train model on Loaded Data
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        criterion = torch.nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-
-        model = torch.compile(model, mode="reduce-overhead")
-        best_val_loss = float("inf")
-
-        for epoch in range(num_epochs):
-            # Training phase
-            model.train()
-            train_loss = 0.0
-            correct = 0
-            total = 0
-
-            for images, labels in train_loader:
-                images, labels = images.to(device), labels.to(device)
-                optimizer.zero_grad()
-                outputs = model(images)
-                loss = criterion(outputs, labels)
-                loss.backward()
-                optimizer.step()
-
-                train_loss += loss.item() * images.size(0)
-                _, predicted = torch.max(outputs, 1)
-                total += labels.size(0)
-                correct += (predicted == labels).sum().item()
-
-            train_loss /= len(train_loader.dataset)
-            train_accuracy = 100. * correct / total
-
-            # Validation phase
-            model.eval()
-            val_loss = 0.0
-            correct = 0
-            total = 0
-
-            with torch.no_grad():
-                for images, labels in val_loader:
-                    images, labels = images.to(device), labels.to(device)
-                    outputs = model(images)
-                    loss = criterion(outputs, labels)
-                    val_loss += loss.item() * images.size(0)
-                    _, predicted = torch.max(outputs, 1)
-                    total += labels.size(0)
-                    correct += (predicted == labels).sum().item()
-
-            val_loss /= len(val_loader.dataset)
-            val_accuracy = 100. * correct / total
-
-            print(f'Epoch {epoch+1}/{num_epochs}, '
-                  f'Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.2f}%, '
-                  f'Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_accuracy:.2f}%')
-
-            # Save the model if the validation loss decreases
-            if val_loss < best_val_loss:
-                best_val_loss = val_loss
-                torch.save(model.state_dict(), 'best_model.pth')
-                print(f'Model saved with validation loss: {val_loss:.4f}')
-        
-        print('Finished Training')
-"""# User choice: Random image or Upload
+        st.write(f"{model_option} model loaded successfully!")
+        # User choice: Random image or Upload
         option = st.radio("Select an option", ('Random image from Test dataset', 'Upload an image'))
 
         # Initialize variable to store the image
