@@ -21,7 +21,7 @@ with tempfile.TemporaryDirectory() as tmp_dir:
             extracted = zip_ref.namelist()
 
         # Assuming the ZIP file contains Training, Validation, Testing directories
-        dataset_path = os.path.join(tmp_dir, extracted[0])
+        dataset_path = os.path.join(tmp_dir, extracted[2088])
         
         
         # Data preprocess
