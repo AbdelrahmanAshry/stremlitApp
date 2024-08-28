@@ -1,9 +1,11 @@
 import streamlit as st
 import torch
 import torchvision.models as models
-from torchvision import transforms
-from PIL import Image
 from torch.utils.data import DataLoader, TensorDataset
+from torchvision import datasets, transforms
+from PIL import Image
+import random
+import os
 
 # Create a temporary directory to store the uploaded dataset
 with tempfile.TemporaryDirectory() as tmp_dir:
