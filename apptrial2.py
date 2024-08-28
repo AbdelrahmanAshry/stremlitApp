@@ -68,7 +68,11 @@ with tempfile.TemporaryDirectory() as tmp_dir:
             train_dataset = Subset(full_dataset, train_indices)
             val_dataset = Subset(full_dataset, val_indices)
             test_dataset = Subset(full_dataset, test_indices)
-
+            # Apply validation transform to validation and test datasets
+            val_dataset.dataset.transform = data_transforms['val']
+            test_dataset.dataset.transform = data_transforms['val']
+            test_dataset.dataset.transform = data_transforms['train']
+            
             st.success("Dataset split into train, validation, and test sets successfully!")
        
         else:            
@@ -89,23 +93,6 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         class_names = train_dataset.dataset.classes if isinstance(train_dataset, Subset) else train_dataset.classes
         st.write(f"Class names: {class_names}")
         
-        
-        
-        # Load the datasets using ImageFolder
-        train_dataset = datasets.ImageFolder(root=dataset_path+'/Training', transform=data_transforms['train'])
-        val_dataset = datasets.ImageFolder(root=extracted[3088], transform=data_transforms['val'])
-        test_dataset = datasets.ImageFolder(root=dataset_path+'/Testing', transform=data_transforms['val'])
-
-        # Create data loaders
-        batch_size = 32
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-        test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-
-        # Display class names
-        class_names = train_dataset.classes
-        st.write(f"Class names: {class_names}")
-
         # Model Selection
         model_option = st.selectbox("Choose a pre-trained model", ["ResNet18", "VGG16", "DenseNet"])
         st.write(f"You selected {model_option}")
