@@ -24,7 +24,7 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         dataset_path = os.path.join(tmp_dir, extracted[0])
         
         
-    extracted_file = os.path.join(extract_dir, extracted[0])
+        extracted_file = os.path.join(extract_dir, extracted[0])
         # Data preprocess
         data_transforms = {
             'train': transforms.Compose([
