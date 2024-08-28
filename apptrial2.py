@@ -18,12 +18,13 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         import zipfile
         with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
             zip_ref.extractall(tmp_dir)
-        
-        # Assuming the ZIP file contains Training, Validation, Testing directories
-        train_dir = os.path.join(tmp_dir, "Training")
-        val_dir = os.path.join(tmp_dir, "Validation")
-        test_dir = os.path.join(tmp_dir, "Testing")
+            extracted = zip_ref.namelist()
 
+        # Assuming the ZIP file contains Training, Validation, Testing directories
+        dataset_path = os.path.join(tmp_dir, extracted[0])
+        
+        
+    extracted_file = os.path.join(extract_dir, extracted[0])
         # Data preprocess
         data_transforms = {
             'train': transforms.Compose([
@@ -42,9 +43,9 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         }
 
         # Load the datasets using ImageFolder
-        train_dataset = datasets.ImageFolder(root=train_dir, transform=data_transforms['train'])
-        val_dataset = datasets.ImageFolder(root=val_dir, transform=data_transforms['val'])
-        test_dataset = datasets.ImageFolder(root=test_dir, transform=data_transforms['val'])
+        train_dataset = datasets.ImageFolder(root=dataset_path+'/Training', transform=data_transforms['train'])
+        val_dataset = datasets.ImageFolder(root=dataset_path+'/Validation', transform=data_transforms['val'])
+        test_dataset = datasets.ImageFolder(root=dataset_path+'/Testing', transform=data_transforms['val'])
 
         # Create data loaders
         batch_size = 32
