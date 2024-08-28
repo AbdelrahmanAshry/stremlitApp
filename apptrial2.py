@@ -16,7 +16,7 @@ with tempfile.TemporaryDirectory() as tmp_dir:
     # Allow the user to upload a ZIP file containing the dataset
     uploaded_file = st.file_uploader("Upload a ZIP file containing the dataset", type=["zip"])
     # Data preprocess
-        data_transforms = {
+    data_transforms = {
             'train': transforms.Compose([
                 transforms.Resize((256, 256)),
                 transforms.RandomHorizontalFlip(),
@@ -30,7 +30,7 @@ with tempfile.TemporaryDirectory() as tmp_dir:
                 transforms.ToTensor(),
                 transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
             ]),
-        }
+    }
 
     
     if uploaded_file is not None:
