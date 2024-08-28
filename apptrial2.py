@@ -39,5 +39,5 @@ if uploaded_file is not None:
     predicted_class = predict(image)
     
     # Map the output to class names (define these according to your dataset)
-    class_names = ['CaS', 'CoS 2', 'Gum', 'MC', 'OC', 'OLP', 'OT']
+    class_names = ['CaS', 'CoS ', 'Gum', 'MC', 'OC', 'OLP', 'OT']
     st.write(f'Prediction: {class_names[predicted_class]}')
