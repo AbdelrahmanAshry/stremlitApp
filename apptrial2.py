@@ -43,7 +43,7 @@ with tempfile.TemporaryDirectory() as tmp_dir:
 
         # Load the datasets using ImageFolder
         train_dataset = datasets.ImageFolder(root=dataset_path+'/Training', transform=data_transforms['train'])
-        val_dataset = datasets.ImageFolder(root=dataset_path+'/Validation', transform=data_transforms['val'])
+        val_dataset = datasets.ImageFolder(root=extracted[3088], transform=data_transforms['val'])
         test_dataset = datasets.ImageFolder(root=dataset_path+'/Testing', transform=data_transforms['val'])
 
         # Create data loaders
