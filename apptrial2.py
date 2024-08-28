@@ -116,8 +116,7 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         num_classes = 7
         num_epochs = 10
         model.fc = torch.nn.Linear(model.fc.in_features, num_classes)  # Modify the final layer for the classes
-        st.write(f"{model_option} model loaded successfully!")
-"""
+        st.write(f"{model_option} model loaded successfully!")"""
         # Train model on Loaded Data
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         criterion = torch.nn.CrossEntropyLoss()
