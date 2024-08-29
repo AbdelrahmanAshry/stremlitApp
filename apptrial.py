@@ -115,10 +115,10 @@ if uploaded_model_file is not None:
 #        try:
             model = torch.load(uploaded_model_file, map_location=torch.device('cpu'))
 #             model = torch.load(uploaded_model_file)
-            if isinstance(uploaded_model_file , torch.nn.Module):
-                model.eval()#full model
-                st.write("Model loaded successfully!")
-            elif isinstance(uploaded_model_file , dict):
+#            if isinstance(uploaded_model_file , torch.nn.Module):
+#                model.eval()#full model
+#                st.write("Model loaded successfully!")
+#            elif isinstance(uploaded_model_file , dict):
                 print("This is a state dictionary.")
  # You'll need to load this into a model architecture
                 model = SimpleDenseNet(num_classes=7)  # Define your model architecture first
