@@ -119,7 +119,7 @@ if uploaded_model_file is not None:
         model = SimpleDenseNet(num_classes=7)
         model.load_state_dict(state_dict)
         model.eval()
-         st.success("Model loaded successfully using 'load_state_dict'.")
+        st.success("Model loaded successfully using 'load_state_dict'.")
         
     except Exception as e:
         st.error(f"Failed to load model using 'load_state_dict': {e}")
