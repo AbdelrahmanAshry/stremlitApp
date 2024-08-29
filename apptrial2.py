@@ -116,9 +116,9 @@ with tempfile.TemporaryDirectory() as tmp_dir:
             else:
                 raise ValueError("Unknown model selected!")
             return   model
+        num_classes = 7
         model = load_model(model_option)
         model.eval()
-        num_classes = 7
         num_epochs = 10
         model.fc = torch.nn.Linear(model.fc.in_features, num_classes)  # Modify the final layer for the classes
         st.write(f"{model_option} model loaded successfully!")
