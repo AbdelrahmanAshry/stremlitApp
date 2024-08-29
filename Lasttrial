@@ -60,7 +60,7 @@ if uploaded_weights is not None:
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         model = model.to(device)
 
-        class_names = {CaS,CoS,OLP,OT}
+        class_names = ['Cas', 'Cos', 'Gum', 'MC', 'OC', 'OLP', 'OT']
         image = None
 
         if image is not None:
@@ -69,7 +69,6 @@ if uploaded_weights is not None:
             with torch.no_grad():
               output = model(image)
               _, predicted = torch.max(output, 1)
-
               st.write(f'Prediction: {class_names[predicted.item()]}')
               st.write("Classification completed.")
         else:
