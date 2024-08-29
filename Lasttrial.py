@@ -1,17 +1,139 @@
+# -*- coding: utf-8 -*-
+"""Deploy.ipynb
+Importing Libraries
+"""
+#pip install streamlit
+
 import streamlit as st
 import torch
+import torch.nn as nn
 import torchvision.models as models
-from torch.utils.data import DataLoader, TensorDataset, Subset
-from torchvision import datasets, transforms
+from torchvision import transforms
 from PIL import Image
-from sklearn.model_selection import train_test_split
-from torchvision.models import DenseNet121_Weights, VGG16_Weights, ResNet18_Weights
-import zipfile
-import random
-import os
-import tempfile
+from io import BytesIO
 
+"""#Deploy App streamlit"""
+# Streamlit app
 st.title("Image Classification")
+
+# Define the model architecture (replace with your actual architecture)
+class DenseBlock(nn.Module):
+    def __init__(self, in_channels, growth_rate, num_layers):
+        super(DenseBlock, self).__init__()
+        self.layers = nn.ModuleList()
+        for i in range(num_layers):
+            self.layers.append(self._make_layer(in_channels + i * growth_rate, growth_rate))
+
+    def _make_layer(self, in_channels, growth_rate):
+        return nn.Sequential(
+            nn.BatchNorm2d(in_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(in_channels, growth_rate, kernel_size=3, padding=1, bias=False)
+        )
+
+    def forward(self, x):
+        for layer in self.layers:
+            out = layer(x)
+            x = torch.cat([x, out], 1)
+        return x
+
+class TransitionLayer(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super(TransitionLayer, self).__init__()
+        self.layer = nn.Sequential(
+            nn.BatchNorm2d(in_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(in_channels, out_channels, kernel_size=1, bias=False),
+            nn.AvgPool2d(kernel_size=2, stride=2)
+        )
+
+    def forward(self, x):
+        return self.layer(x)
+
+class SimpleDenseNet(nn.Module):
+    def __init__(self, num_classes=7):
+        super(SimpleDenseNet, self).__init__()
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
+        self.bn1 = nn.BatchNorm2d(64)
+        self.relu = nn.ReLU(inplace=True)
+        self.pool1 = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+
+        self.block1 = DenseBlock(64, growth_rate=32, num_layers=4)
+        self.trans1 = TransitionLayer(192, 96)
+        
+
+        self.block2 = DenseBlock(96, growth_rate=32, num_layers=4)
+        self.trans2 = TransitionLayer(224, 112)
+        
+
+        self.block3 = DenseBlock(112, growth_rate=32, num_layers=4)
+        self.trans3 = TransitionLayer(240, 120) 
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        self.fc = nn.Linear(120, num_classes)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.pool1(x)
+
+        x = self.block1(x)
+        x = self.trans1(x)
+
+        x = self.block2(x)
+        x = self.trans2(x)
+
+        x = self.block3(x)
+        x = self.trans3(x)
+
+        x = self.avgpool(x)
+        x = torch.flatten(x, 1)
+        x = self.fc(x)
+
+        return x
+
+# Function to terminate the Streamlit session
+def terminate_session():
+    st.write("Session terminated due to no file upload.")
+    st.stop()
+
+# Streamlit app
+st.title("Image Classification")
+
+# File uploader for .pth files
+uploaded_model_file = st.file_uploader("Upload a model file (.pth)", type=["pth"])
+
+# File uploader for image files
+uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+
+# Initialize model variable
+model = None
+
+if uploaded_model_file is not None:
+    try:
+        # Try loading the entire model
+        model = torch.load(BytesIO(uploaded_model_file.read()), map_location=torch.device('cpu'))
+        model.eval()
+        st.success("Model loaded successfully using 'torch.load'.")
+        
+    except Exception as e:
+        st.warning(f"Failed to load model using 'torch.load': {e}")
+        try:
+            # Reset the file pointer to the beginning
+            uploaded_model_file.seek(0)
+            # Load as state_dict
+            state_dict = torch.load(BytesIO(uploaded_model_file.read()), map_location=torch.device('cpu'))
+            # Instantiate the model architecture
+            model = SimpleDenseNet(num_classes=7)
+            model.load_state_dict(state_dict)
+            model.eval()
+            st.success("Model loaded successfully using 'load_state_dict'.")
+        except Exception as e:
+            st.error(f"Failed to load model using 'load_state_dict': {e}")
+            model = None
+else:
+    st.warning("Please upload a model file.")
+ 
 # Data transformations
 data_transforms = {
     'val': transforms.Compose([
@@ -20,68 +142,35 @@ data_transforms = {
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ]),
 }
-# Load pre-trained models
-def load_model(model_name, num_classes):
-    if model_name == "ResNet18":
-        weights = ResNet18_Weights.DEFAULT
-        model = models.resnet18(weights=weights)
-        model.fc = torch.nn.Linear(model.fc.in_features, num_classes)
-    elif model_name == "VGG16":
-        weights = VGG16_Weights.DEFAULT
-        model = models.vgg16(weights=weights)
-        model.classifier[6] = torch.nn.Linear(model.classifier[6].in_features, num_classes)
-    elif model_name == "DenseNet":
-        weights = DenseNet121_Weights.DEFAULT
-        model = models.densenet121(weights=weights)
-        model.classifier = torch.nn.Linear(model.classifier.in_features, num_classes)
+
+# Handle image upload and classification
+if uploaded_img is not None:
+    if model is not None:
+        # Load the image
+        image = Image.open(uploaded_img)
+        st.image(image, caption='Uploaded Image', use_column_width=True)
+        st.write("Classifying...")
+
+        # Preprocess the image
+        image = data_transforms['val'](image).unsqueeze(0)
+
+        # Move model and input to the device
+        # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        #model = model.to(device)
+        #image = image.to(device)
+
+        # Make prediction
+        with torch.no_grad():
+            output = model(image)
+            _, predicted = torch.max(output, 1)
+
+        # Map the output to class names
+        class_names = ['CaS', 'CoS', 'Gum', 'MC', 'OC', 'OLP', 'OT']
+        st.write(f'Prediction: {class_names[predicted.item()]}')
+
+        # Update the progress bar to complete
+        st.write("Classification completed.")
     else:
-        raise ValueError("Unknown model selected!")
-    return model
-
-# Check if weights are compatible with the model
-def check_weights_compatibility(model, weights_path):
-    try:
-        state_dict = torch.load(weights_path)
-        model.load_state_dict(state_dict, strict=False)
-        return True
-    except Exception as e:
-        st.error(f"Error loading weights: {e}")
-        return False
-
-# Upload model weights
-uploaded_weights = st.file_uploader("Upload a model weights file (.pth)", type=["pth"])
-
-if uploaded_weights is not None:
-    # Model Selection
-    model_option = st.selectbox("Choose a pre-trained model", ["ResNet18", "VGG16", "DenseNet"])
-    st.write(f"You selected {model_option}")
-
-    num_classes = 7
-    model = load_model(model_option, num_classes)
-    st.write(f"{model_option} model loaded successfully!")
-
-    # Verify if uploaded weights are compatible
-    if check_weights_compatibility(model, uploaded_weights):
-        st.success("Weights loaded successfully!")
-        model.eval()
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        model = model.to(device)
-
-        class_names = ['Cas', 'Cos', 'Gum', 'MC', 'OC', 'OLP', 'OT']
-        image = None
-        # Upload image for training
-        image = st.file_uploader("Upload a picture  file (.jpg)", type=["jpg"])
-        if image is not None:
-            # Preprocess the image
-            image = data_transforms['val'](image).unsqueeze(0)
-            with torch.no_grad():
-              output = model(image)
-              _, predicted = torch.max(output, 1)
-              st.write(f'Prediction: {class_names[predicted.item()]}')
-              st.write("Classification completed.")
-        else:
-            st.warning("Please choose or upload an image to classify.")
-    else:
-        st.error("Invalid model weights provided.")
+        st.warning("Please upload a model file first.")
 else:
-    st.warning("Please upload a model weights file.")
+    st.warning("Please upload an image to classify.")
