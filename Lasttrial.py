@@ -111,26 +111,20 @@ model = None
 
 if uploaded_model_file is not None:
     try:
-        # Try loading the entire model
-        model = torch.load(BytesIO(uploaded_model_file.read()), map_location=torch.device('cpu'))
+        # load model  onto file
+        uploaded_model_file.seek(0)
+        # Load as state_dict
+        state_dict = torch.load(BytesIO(uploaded_model_file.read()), map_location=torch.device('cpu'))
+        # Instantiate the model architecture
+        model = SimpleDenseNet(num_classes=7)
+        model.load_state_dict(state_dict)
         model.eval()
-        st.success("Model loaded successfully using 'torch.load'.")
+         st.success("Model loaded successfully using 'load_state_dict'.")
         
     except Exception as e:
-        st.warning(f"Failed to load model using 'torch.load': {e}")
-        try:
-            # Reset the file pointer to the beginning
-            uploaded_model_file.seek(0)
-            # Load as state_dict
-            state_dict = torch.load(BytesIO(uploaded_model_file.read()), map_location=torch.device('cpu'))
-            # Instantiate the model architecture
-            model = SimpleDenseNet(num_classes=7)
-            model.load_state_dict(state_dict)
-            model.eval()
-            st.success("Model loaded successfully using 'load_state_dict'.")
-        except Exception as e:
-            st.error(f"Failed to load model using 'load_state_dict': {e}")
-            model = None
+        st.error(f"Failed to load model using 'load_state_dict': {e}")
+        model = None
+
 else:
     st.warning("Please upload a model file.")
  
