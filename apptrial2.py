@@ -102,15 +102,20 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         def load_model(model_name):
             if model_name == "ResNet18":
                 weights = ResNet18_Weights.DEFAULT
-                return models.resnet18(weights=weights)
+                model = models.resnet18(weights=weights)
+                model.fc = torch.nn.Linear(model.fc.in_features, num_classes)  # Modify the final layer
+
             elif model_name == "VGG16":
-                weights=VGG16_Weights.DEFAULT 
-                return models.vgg16(weights=weights)
+                weights=VGG16_Weights.DEFAULT
+                model = models.vgg16(weights=weights)
+                model.classifier[6] = torch.nn.Linear(model.classifier[6].in_features, num_classes)  # Modify the final layer
             elif model_name == "DenseNet":
                 weights = DenseNet121_Weights.DEFAULT
-                return models.densenet121(weights=weights)
+                model = models.densenet121(weights=weights)
+                model.classifier = torch.nn.Linear(model.classifier.in_features, num_classes)  # Modify the final layer
             else:
                 raise ValueError("Unknown model selected!")
+            return   model
         model = load_model(model_option)
         model.eval()
         num_classes = 7
