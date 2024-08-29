@@ -17,13 +17,80 @@ from threading import Timer
 st.title("Image Classification")
 
 # Define the model architecture (replace with your actual architecture)
-class MyModel(torch.nn.Module):
-    def __init__(self):
-        super(MyModel, self).__init__()
-        self.model = models.resnet18(pretrained=True)  # Replace with your model architecture
+class DenseBlock(nn.Module):
+    def __init__(self, in_channels, growth_rate, num_layers):
+        super(DenseBlock, self).__init__()
+        self.layers = nn.ModuleList()
+        for i in range(num_layers):
+            self.layers.append(self._make_layer(in_channels + i * growth_rate, growth_rate))
+
+    def _make_layer(self, in_channels, growth_rate):
+        return nn.Sequential(
+            nn.BatchNorm2d(in_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(in_channels, growth_rate, kernel_size=3, padding=1, bias=False)
+        )
 
     def forward(self, x):
-        return self.model(x)
+        for layer in self.layers:
+            out = layer(x)
+            x = torch.cat([x, out], 1)
+        return x
+
+class TransitionLayer(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super(TransitionLayer, self).__init__()
+        self.layer = nn.Sequential(
+            nn.BatchNorm2d(in_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(in_channels, out_channels, kernel_size=1, bias=False),
+            nn.AvgPool2d(kernel_size=2, stride=2)
+        )
+
+    def forward(self, x):
+        return self.layer(x)
+
+class SimpleDenseNet(nn.Module):
+    def __init__(self, num_classes=7):
+        super(SimpleDenseNet, self).__init__()
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
+        self.bn1 = nn.BatchNorm2d(64)
+        self.relu = nn.ReLU(inplace=True)
+        self.pool1 = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+
+        self.block1 = DenseBlock(64, growth_rate=32, num_layers=4)
+        self.trans1 = TransitionLayer(192, 96)
+        
+
+        self.block2 = DenseBlock(96, growth_rate=32, num_layers=4)
+        self.trans2 = TransitionLayer(224, 112)
+        
+
+        self.block3 = DenseBlock(112, growth_rate=32, num_layers=4)
+        self.trans3 = TransitionLayer(240, 120) 
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        self.fc = nn.Linear(120, num_classes)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.pool1(x)
+
+        x = self.block1(x)
+        x = self.trans1(x)
+
+        x = self.block2(x)
+        x = self.trans2(x)
+
+        x = self.block3(x)
+        x = self.trans3(x)
+
+        x = self.avgpool(x)
+        x = torch.flatten(x, 1)
+        x = self.fc(x)
+
+        return x
 
 # Function to terminate the Streamlit session
 def terminate_session():
@@ -54,7 +121,7 @@ if uploaded_model_file is not None:
             elif isinstance(uploaded_model_file , dict):
                 print("This is a state dictionary.")
  # You'll need to load this into a model architecture
-                model = MyModel()  # Define your model architecture first
+                model = SimpleDenseNet(num_classes=7)  # Define your model architecture first
                 model.load_state_dict(uploaded_model_file )
                 model.eval()  # Now you can use eval()
             else: 
