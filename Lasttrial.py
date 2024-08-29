@@ -72,8 +72,8 @@ if uploaded_weights is not None:
         # Upload image for training
         image = st.file_uploader("Upload a picture  file (.jpg)", type=["jpg"])
         if image is not None:
-          image = image.unsqueeze(0).to(device)
-          image = data_transforms['val']image
+            # Preprocess the image
+            image = data_transforms['val'](image).unsqueeze(0)
             with torch.no_grad():
               output = model(image)
               _, predicted = torch.max(output, 1)
