@@ -110,20 +110,20 @@ uploaded_img = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"
 model = None
 
 if uploaded_model_file is not None:
-    try:
+#    try:
 #        # Try loading the model as a full model
-#        try:
+           try:
             model = torch.load(uploaded_model_file, map_location=torch.device('cpu'))
 #             model = torch.load(uploaded_model_file)
 #            if isinstance(uploaded_model_file , torch.nn.Module):
 #                model.eval()#full model
 #                st.write("Model loaded successfully!")
 #            elif isinstance(uploaded_model_file , dict):
-                print("This is a state dictionary.")
+               print("This is a state dictionary.")
  # You'll need to load this into a model architecture
-                model = SimpleDenseNet(num_classes=7)  # Define your model architecture first
-                model.load_state_dict(uploaded_model_file )
-                model.eval()  # Now you can use eval()
+               model = SimpleDenseNet(num_classes=7)  # Define your model architecture first
+               model.load_state_dict(uploaded_model_file )
+               model.eval()  # Now you can use eval()
 #            else: 
 #                raise ValueError("Loaded file is not a valid model.")
 #        except Exception as e:
